@@ -1,6 +1,7 @@
 package com.notenote.app.ui.navigation
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EventNote
@@ -31,6 +32,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.notenote.app.ads.NotenoteBannerAd
 import com.notenote.app.domain.model.ListMode
 import com.notenote.app.ui.screen.editor.NoteEditorScreen
 import com.notenote.app.ui.screen.folders.FoldersScreen
@@ -85,7 +87,9 @@ fun NotenoteNavHost(navController: NavHostController, pendingNoteId: Long?) {
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
             if (currentRoute in bottomDestinations.map { it.route }) {
-                NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
+                Column {
+                    NotenoteBannerAd()
+                    NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
                     bottomDestinations.forEach { destination ->
                         val selected = currentRoute == destination.route
                         NavigationBarItem(
@@ -110,6 +114,7 @@ fun NotenoteNavHost(navController: NavHostController, pendingNoteId: Long?) {
                                 indicatorColor = MaterialTheme.colorScheme.primaryContainer,
                             ),
                         )
+                    }
                     }
                 }
             }

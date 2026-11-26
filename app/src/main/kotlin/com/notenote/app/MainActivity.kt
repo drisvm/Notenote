@@ -5,14 +5,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import com.notenote.app.ads.Ads
 import com.notenote.app.data.preferences.ThemeMode
 import com.notenote.app.ui.navigation.NotenoteNavHost
 import com.notenote.app.ui.theme.NotenoteTheme
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -38,6 +41,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             val themeStateValue by themeState.collectAsStateWithLifecycle()
             NotenoteTheme(themeMode = themeStateValue.first, accentColorHex = themeStateValue.second) {
+                LaunchedEffect(Unit) {
+                    launch { runCatching { app.container.purchaseManager.refresh() } }
+                    runCatching { Ads.initialize(this@MainActivity) }
+                }
                 val navController = rememberNavController()
                 NotenoteNavHost(navController = navController, pendingNoteId = pendingNoteId.value)
             }

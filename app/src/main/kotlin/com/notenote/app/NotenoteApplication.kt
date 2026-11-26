@@ -6,6 +6,7 @@ import com.notenote.app.data.local.NotenoteDatabase
 import com.notenote.app.data.preferences.SettingsRepository
 import com.notenote.app.data.repository.FolderRepository
 import com.notenote.app.data.repository.NoteRepository
+import com.notenote.app.billing.PurchaseManager
 import com.notenote.app.notification.Notifications
 
 class NotenoteApplication : Application() {
@@ -22,4 +23,5 @@ class AppContainer(application: Application) {
     val folderRepository = FolderRepository(database.folderDao())
     val settingsRepository = SettingsRepository(application)
     val backupManager = BackupManager(database.noteDao(), database.folderDao())
+    val purchaseManager = PurchaseManager(application, settingsRepository)
 }

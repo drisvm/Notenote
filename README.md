@@ -65,6 +65,14 @@ Open the project in Android Studio (Koala or newer), or:
 > Android Studio fix the wrapper (it offers this on first sync) or run
 > `gradle wrapper --gradle-version 9.2.1` once with any local Gradle installation.
 
+## Monetization
+
+- Ads: AdMob banner on the main screens (test IDs in debug builds, real unit IDs in release),
+  with Google's UMP consent flow before any ad loads.
+- Remove ads: one-time non-consumable in-app purchase, product ID `remove_ads`. Entitlement is
+  stored in DataStore and restored on every app start via Play Billing
+  (`queryPurchasesAsync`). Create the product in Play Console before releasing.
+
 Install on a connected device/emulator:
 
 ```bash

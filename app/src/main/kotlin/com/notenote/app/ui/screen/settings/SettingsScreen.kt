@@ -1,5 +1,6 @@
 package com.notenote.app.ui.screen.settings
 
+import android.app.Activity
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -41,6 +42,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.notenote.app.NotenoteApplication
+import com.notenote.app.billing.PurchaseState
+import com.notenote.app.billing.PurchaseState.Available
+import com.notenote.app.billing.PurchaseState.Error
+import com.notenote.app.billing.PurchaseState.Loading
+import com.notenote.app.billing.PurchaseState.Owned
+import com.notenote.app.billing.PurchaseState.Unavailable
 import com.notenote.app.data.preferences.ThemeMode
 import com.notenote.app.ui.common.VmFactory
 import com.notenote.app.ui.components.ColorPickerDialog
@@ -57,7 +64,12 @@ fun SettingsScreen() {
         factory = VmFactory { SettingsViewModel(app.container) },
     )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val purchaseState by viewModel.purchaseState.collectAsStateWithLifecycle()
     val darkTheme = isSystemInDarkTheme()
+
+    val activity = LocalContext.current as? Activity
+
+    LaunchedEffect(Unit) { viewModel.refreshPurchases() }
 
     var showAccentPicker by remember { mutableStateOf(false) }
 
@@ -186,6 +198,67 @@ fun SettingsScreen() {
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
 
+            SectionHeader("Support")
+            if (state.settings.adsRemoved) {
+                Text("Ad-free", style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    "Thanks for supporting Notenote \u2014 ads are gone for good.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+            } else {
+                when (val ps = purchaseState) {
+                    is Available -> {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp),
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text("Remove ads", style = MaterialTheme.typography.bodyLarge)
+                                Text(
+                                    "One-time purchase \u00B7 ${ps.price}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            val buyAction: () -> Unit = activity?.let { act -> { viewModel.removeAds(act) } } ?: {}
+                            SettingsButton("Buy", onClick = buyAction)
+                        }
+                    }
+                    Loading -> {
+                        Text("Remove ads", style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            "One-time purchase \u00B7 checking Google Play\u2026",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
+                    }
+                    Unavailable, is Error -> {
+                        Text("Remove ads", style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            "Google Play isn't reachable on this device, so purchases are unavailable here.",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
+                    }
+                    Owned -> {}
+                }
+                SettingsButton("Restore purchases") { viewModel.refreshPurchases() }
+                Text(
+                    "Ads support Notenote's development. Pay once to keep using it ad-free, forever, on every device with your Google account.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+
             SectionHeader("About")
             Text("Notenote 1.0.0", style = MaterialTheme.typography.bodyLarge)
             Text(
@@ -259,8 +332,7 @@ private fun SettingsButton(label: String, onClick: () -> Unit) {
             .padding(horizontal = 14.dp, vertical = 10.dp),
     ) {
         Text(
-            label,
-            style = MaterialTheme.typography.labelLarge,
+            label,            style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSecondaryContainer,
         )
     }

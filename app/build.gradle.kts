@@ -26,7 +26,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            manifestPlaceholders["admobAppId"] = "ca-app-pub-3940256099942544~3347511713"
+            buildConfigField("String", "ADMOB_BANNER_UNIT_ID", "\"ca-app-pub-3940256099942544/6300978111\"")
+        }
         release {
+            manifestPlaceholders["admobAppId"] = "ca-app-pub-3504913522316799~8220244011"
+            buildConfigField("String", "ADMOB_BANNER_UNIT_ID", "\"ca-app-pub-3504913522316799/6049697045\"")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -46,6 +52,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     packaging {
         resources {
@@ -80,6 +87,9 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.play.services.ads)
+    implementation(libs.billing.ktx)
+    implementation(libs.user.messaging.platform)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
 

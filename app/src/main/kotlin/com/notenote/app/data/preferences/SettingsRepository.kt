@@ -17,6 +17,7 @@ data class AppSettings(
     val paperTextureEnabled: Boolean = true,
     val sortOption: SortOption = SortOption.MODIFIED,
     val sortAscending: Boolean = false,
+    val adsRemoved: Boolean = false,
 )
 
 private val Context.dataStore by preferencesDataStore(name = "notenote_settings")
@@ -29,6 +30,7 @@ class SettingsRepository(private val context: Context) {
         val PAPER_TEXTURE = booleanPreferencesKey("paper_texture")
         val SORT_OPTION = stringPreferencesKey("sort_option")
         val SORT_ASCENDING = booleanPreferencesKey("sort_ascending")
+        val ADS_REMOVED = booleanPreferencesKey("ads_removed")
     }
 
     val settings: Flow<AppSettings> = context.dataStore.data.map { prefs ->
@@ -40,7 +42,12 @@ class SettingsRepository(private val context: Context) {
             sortOption = prefs[Keys.SORT_OPTION]?.let { runCatching { SortOption.valueOf(it) }.getOrNull() }
                 ?: SortOption.MODIFIED,
             sortAscending = prefs[Keys.SORT_ASCENDING] ?: false,
+            adsRemoved = prefs[Keys.ADS_REMOVED] ?: false,
         )
+    }
+
+    val adsRemoved: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[Keys.ADS_REMOVED] ?: false
     }
 
     suspend fun setThemeMode(mode: ThemeMode) {
@@ -55,6 +62,10 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setPaperTextureEnabled(enabled: Boolean) {
         context.dataStore.edit { it[Keys.PAPER_TEXTURE] = enabled }
+    }
+
+    suspend fun setAdsRemoved(removed: Boolean) {
+        context.dataStore.edit { it[Keys.ADS_REMOVED] = removed }
     }
 
     suspend fun setSorting(option: SortOption, ascending: Boolean) {

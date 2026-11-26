@@ -1,11 +1,13 @@
 package com.notenote.app.ui.screen.settings
 
+import android.app.Activity
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.notenote.app.AppContainer
 import com.notenote.app.data.preferences.AppSettings
 import com.notenote.app.data.preferences.ThemeMode
+import com.notenote.app.billing.PurchaseState
 import com.notenote.app.ui.theme.DEFAULT_ACCENT_HEX
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
@@ -48,6 +50,16 @@ class SettingsViewModel(private val container: AppContainer) : ViewModel() {
 
     fun setPaperTexture(enabled: Boolean) {
         viewModelScope.launch { container.settingsRepository.setPaperTextureEnabled(enabled) }
+    }
+
+    val purchaseState: StateFlow<PurchaseState> = container.purchaseManager.state
+
+    fun refreshPurchases() {
+        viewModelScope.launch { container.purchaseManager.refresh() }
+    }
+
+    fun removeAds(activity: Activity) {
+        viewModelScope.launch { container.purchaseManager.launchPurchase(activity) }
     }
 
     fun exportBackup(uri: Uri) {
