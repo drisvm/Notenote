@@ -63,7 +63,7 @@ Open the project in Android Studio (Koala or newer), or:
 
 > **Wrapper note:** if `gradle/wrapper/gradle-wrapper.jar` is missing from your clone, let
 > Android Studio fix the wrapper (it offers this on first sync) or run
-> `gradle wrapper --gradle-version 8.9` once with any local Gradle installation.
+> `gradle wrapper --gradle-version 9.2.1` once with any local Gradle installation.
 
 Install on a connected device/emulator:
 
